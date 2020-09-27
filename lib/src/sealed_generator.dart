@@ -19,20 +19,20 @@ class SealedClassGenerator extends Generator {
         .forEach(buildRelations);
 
     relationsMap.keys.forEach((sealed) => {
-          buffer.write("class Sealed${sealed.type}{ "),
+          buffer.write("class Sealed${sealed.thisType}{ "),
           if (relationsMap[sealed].isNotEmpty)
             {
               buffer.write("R when<R>({"),
               relationsMap[sealed].asMap().forEach((index, child) => {
                     buffer.write(
-                        "@required R Function(${child.type}) ${ReCase(child.name).camelCase}"),
+                        "@required R Function(${child.thisType}) ${ReCase(child.name).camelCase}"),
                     if (index < relationsMap[sealed].length) {buffer.write(",")}
                   }),
               buffer.write("}) {"),
               relationsMap[sealed].forEach((child) => {
-                    buffer.write("if(this is ${child.type}) {"),
+                    buffer.write("if(this is ${child.thisType}) {"),
                     buffer.write(
-                        "return ${ReCase(child.name).camelCase}(this as ${child.type}); }")
+                        "return ${ReCase(child.name).camelCase}(this as ${child.thisType}); }")
                   }),
               buffer.write(
                   """throw new Exception('If you got here, probably you forgot to regenerate the classes? Try running flutter packages pub run build_runner build');}"""),
@@ -50,7 +50,7 @@ class SealedClassGenerator extends Generator {
       if (relationsMap.keys
           .any((value) => value.enclosingElement == element.enclosingElement)) {
         var hasRelation = relationsMap.keys.where(
-            (sealed) => element.toString().contains("extends ${sealed.type}"));
+            (sealed) => element.toString().contains("extends ${sealed.thisType}"));
 
         hasRelation.forEach((value) => relationsMap[value].add(element));
       }

@@ -16,12 +16,19 @@ class SealedClassGenerator extends Generator {
     library.allElements
         .where((element) => element is ClassElement)
         .cast<ClassElement>()
+        .forEach((element) {
+      if (element.hasSealed) {
+        relationsMap.putIfAbsent(element, () => List());
+      }
+    });
+      library.allElements
+        .where((element) => element is ClassElement)
+        .cast<ClassElement>()
         .forEach(buildRelations);
 
     relationsMap.keys.forEach((sealed) => {
           buffer.write("class Sealed${sealed.thisType.getDisplayString(withNullability: false)}{ "),
-          if (relationsMap[sealed].isNotEmpty)
-            {
+          if (relationsMap[sealed].isNotEmpty) {
               buffer.write("R when<R>({"),
               relationsMap[sealed].asMap().forEach((index, child) => {
                     buffer.write(
@@ -44,16 +51,11 @@ class SealedClassGenerator extends Generator {
   }
 
   buildRelations(ClassElement element) {
-    if (element.hasSealed) {
-      relationsMap.putIfAbsent(element, () => List());
-    } else {
-      if (relationsMap.keys
-          .any((value) => value.enclosingElement == element.enclosingElement)) {
-        var hasRelation = relationsMap.keys.where(
-            (sealed) => element.toString().contains("extends ${sealed.thisType.getDisplayString(withNullability: false)}"));
+    if(!element.hasSealed) {
+      // Find every relation
+      var hasRelation = relationsMap.keys.where((ClassElement sealed) => element.allSupertypes.map((it) => it.getDisplayString(withNullability: false)).contains(sealed.thisType.getDisplayString(withNullability: false)));
 
-        hasRelation.forEach((value) => relationsMap[value].add(element));
-      }
+      hasRelation.forEach((value) => relationsMap[value].add(element));
     }
   }
 }

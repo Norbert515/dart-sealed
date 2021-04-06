@@ -32,7 +32,7 @@ class SealedClassGenerator extends Generator {
               buffer.write("R when<R>({"),
               relationsMap[sealed]!.asMap().forEach((index, child) => {
                     buffer.write(
-                        "@required R Function(${child.thisType.getDisplayString(withNullability: false)}) ${ReCase(child.name).camelCase}"),
+                        "required R Function(${child.thisType.getDisplayString(withNullability: false)}) ${ReCase(child.name).camelCase}"),
                     if (index < relationsMap[sealed]!.length) {buffer.write(",")}
                   }),
               buffer.write("}) {"),
@@ -42,7 +42,7 @@ class SealedClassGenerator extends Generator {
                         "return ${ReCase(child.name).camelCase}(this as ${child.thisType.getDisplayString(withNullability: false)}); }")
                   }),
               buffer.write(
-                  """throw new Exception('If you got here, probably you forgot to regenerate the classes? Try running flutter packages pub run build_runner build');}"""),
+                  """throw Exception('If you got here, probably you forgot to regenerate the classes? Try running flutter packages pub run build_runner build');}"""),
             },
           buffer.write("}")
         });

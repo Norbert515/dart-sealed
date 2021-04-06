@@ -18,7 +18,7 @@ class SealedClassGenerator extends Generator {
         .cast<ClassElement>()
         .forEach((element) {
       if (element.hasSealed) {
-        relationsMap.putIfAbsent(element, () => List());
+        relationsMap.putIfAbsent(element, () => []);
       }
     });
       library.allElements
@@ -28,15 +28,15 @@ class SealedClassGenerator extends Generator {
 
     relationsMap.keys.forEach((sealed) => {
           buffer.write("class Sealed${sealed.thisType.getDisplayString(withNullability: false)}{ "),
-          if (relationsMap[sealed].isNotEmpty) {
+          if (relationsMap[sealed]!.isNotEmpty) {
               buffer.write("R when<R>({"),
-              relationsMap[sealed].asMap().forEach((index, child) => {
+              relationsMap[sealed]!.asMap().forEach((index, child) => {
                     buffer.write(
                         "@required R Function(${child.thisType.getDisplayString(withNullability: false)}) ${ReCase(child.name).camelCase}"),
-                    if (index < relationsMap[sealed].length) {buffer.write(",")}
+                    if (index < relationsMap[sealed]!.length) {buffer.write(",")}
                   }),
               buffer.write("}) {"),
-              relationsMap[sealed].forEach((child) => {
+              relationsMap[sealed]!.forEach((child) => {
                     buffer.write("if(this is ${child.thisType.getDisplayString(withNullability: false)}) {"),
                     buffer.write(
                         "return ${ReCase(child.name).camelCase}(this as ${child.thisType.getDisplayString(withNullability: false)}); }")
@@ -55,7 +55,7 @@ class SealedClassGenerator extends Generator {
       // Find every relation
       var hasRelation = relationsMap.keys.where((ClassElement sealed) => element.allSupertypes.map((it) => it.getDisplayString(withNullability: false)).contains(sealed.thisType.getDisplayString(withNullability: false)));
 
-      hasRelation.forEach((value) => relationsMap[value].add(element));
+      hasRelation.forEach((value) => relationsMap[value]!.add(element));
     }
   }
 }
